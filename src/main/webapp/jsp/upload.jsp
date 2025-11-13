@@ -1,0 +1,2 @@
+<%-- upload.jsp placeholder --%>
+<html><body><h1>Upload</h1></body></html>
