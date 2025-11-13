@@ -1,0 +1,31 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.example:FlexiFile >------------------------
+[INFO] Building FlexiFile 0.1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO] 
+[INFO] >>> tomcat7:2.2:run (default-cli) > process-classes @ FlexiFile >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ FlexiFile ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] Copying 3 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ FlexiFile ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< tomcat7:2.2:run (default-cli) < process-classes @ FlexiFile <<<
+[INFO] 
+[INFO] 
+[INFO] --- tomcat7:2.2:run (default-cli) @ FlexiFile ---
+[INFO] Running war on http://localhost:8080/FlexiFile
+[INFO] Creating Tomcat server configuration at /Users/anhnon/FlexiFile/target/tomcat
+[INFO] create webapp with contextPath: /FlexiFile
+thg 11 13, 2025 3:12:44 CH org.apache.coyote.AbstractProtocol init
+INFO: Initializing ProtocolHandler ["http-bio-8080"]
+thg 11 13, 2025 3:12:44 CH org.apache.catalina.core.StandardService startInternal
+INFO: Starting service Tomcat
+thg 11 13, 2025 3:12:44 CH org.apache.catalina.core.StandardEngine startInternal
+INFO: Starting Servlet Engine: Apache Tomcat/7.0.47
+thg 11 13, 2025 3:12:44 CH org.apache.coyote.AbstractProtocol start
+INFO: Starting ProtocolHandler ["http-bio-8080"]
