@@ -7,11 +7,78 @@
     <version>0.1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>FlexiFile</name>
+     <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.cloudinary</groupId>
             <artifactId>cloudinary-http44</artifactId>
             <version>1.33.0</version>
         </dependency>
+        <!-- DOCX support -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.3</version>
+        </dependency>
+
+        <!-- DOC support -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>5.2.3</version>
+        </dependency>
+
+        <!-- PDF support -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.30</version>
+        </dependency>
+
+        <!-- OpenCSV for CSV parsing -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.7.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.16.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.20.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.20.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-webp</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-core</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sejda.imageio</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.1.6</version>
+        </dependency>
+
     </dependencies>
 </project>
