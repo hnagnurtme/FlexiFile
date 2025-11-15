@@ -4,3 +4,12 @@ Thumbs.db
 
 target
 
+
+# IDE Files
+.vscode/
+.idea/
+*.iml
+
+src/main/resources/serviceAccountKey.json
+
+src/main/java/util/CloudinaryConfig.java
