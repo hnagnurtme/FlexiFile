@@ -13,3 +13,5 @@ target
 src/main/resources/serviceAccountKey.json
 
 src/main/java/util/CloudinaryConfig.java
+
+src/main/java/config/EmailConfig.java
