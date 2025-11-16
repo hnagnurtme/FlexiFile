@@ -1,10 +1,13 @@
 package util;
 
+import java.io.InputStream;
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.auth.oauth2.GoogleCredentials;
-import java.io.InputStream;
+import com.google.firebase.cloud.FirestoreClient;
 
 public class FirebaseUtil {
 
@@ -40,5 +43,11 @@ public class FirebaseUtil {
     public static FirebaseAuth getAuth() {
         if (!initialized) initialize();
         return FirebaseAuth.getInstance();
+    }
+
+    /** Lấy Firestore instance */
+    public static Firestore getFirestore() {
+        if (!initialized) initialize();
+        return FirestoreClient.getFirestore();
     }
 }
