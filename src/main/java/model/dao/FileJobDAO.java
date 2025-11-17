@@ -71,6 +71,21 @@ public class FileJobDAO {
         }
     }
 
+    public boolean createFileJob(FileJob job) {
+        try {
+            db.collection(COLLECTION_NAME)
+              .document(job.getUserId())
+              .collection("fileJobs")
+              .document(job.getId())
+              .set(job)
+              .get();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     /** Map Firestore Document -> FileJob */
     private FileJob mapDocumentToFileJob(DocumentSnapshot doc, String userId) {
         FileJob job = new FileJob();

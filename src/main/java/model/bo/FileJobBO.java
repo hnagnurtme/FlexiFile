@@ -51,4 +51,8 @@ public class FileJobBO {
             e.printStackTrace();
         }
     }
+
+    public boolean createFileJob(FileJob job) {
+        return fileJobDAO.createFileJob(job);
+    }
 }

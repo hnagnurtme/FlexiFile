@@ -1,8 +1,8 @@
 # Operating System Files
 .DS_Store
 Thumbs.db
-
 target
+deploy2.bat
 
 
 # IDE Files

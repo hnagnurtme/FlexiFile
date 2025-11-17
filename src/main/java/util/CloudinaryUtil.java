@@ -53,7 +53,7 @@ public class CloudinaryUtil {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
 
             int nRead;
-            byte[] data = new byte[1024];  // read 1 KB at a time
+            byte[] data = new byte[1024*8];  // read 8 KB at a time
             while ((nRead = in.read(data, 0, data.length)) != -1) {
                 buffer.write(data, 0, nRead);
             }
@@ -94,4 +94,29 @@ public class CloudinaryUtil {
 
         return parent + "/" + folder + "/" + nameWithoutExt;
     }
+
+    // =============================
+    // 6. Upload InputStream to SOURCE folder
+    // =============================
+    public static String uploadSourceStream(InputStream inputStream, String fileName) throws Exception {
+        Map upload = cloudinary.uploader().upload(inputStream, ObjectUtils.asMap(
+                "folder", CloudinaryConfig.SOURCE_FOLDER,
+                "resource_type", "auto",
+                "public_id", fileName // optional: set file name in Cloudinary
+        ));
+        return upload.get("secure_url").toString();
+    }
+
+    // =============================
+    // 7. Upload InputStream to CONVERTED folder
+    // =============================
+    public static String uploadConvertedStream(InputStream inputStream, String fileName) throws Exception {
+        Map upload = cloudinary.uploader().upload(inputStream, ObjectUtils.asMap(
+                "folder", CloudinaryConfig.CONVERTED_FOLDER,
+                "resource_type", "auto",
+                "public_id", fileName
+        ));
+        return upload.get("secure_url").toString();
+    }
+
 }
