@@ -7,10 +7,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -31,7 +29,6 @@ public class TextToTextConverter {
 
             switch (ext) {
                 case "txt", "log", "html" -> {
-                    // Treat as plain text, keep all tags
                     List<String> lines = Files.readAllLines(inputFile.toPath());
                     for (String line : lines) {
                         XWPFParagraph para = doc.createParagraph();
@@ -46,12 +43,12 @@ public class TextToTextConverter {
                         for (int i = 0; i < rows.size(); i++) {
                             String[] row = rows.get(i);
                             XWPFTableRow tableRow = (i == 0) ? table.getRow(0) : table.createRow();
-                            IntStream.range(0, row.length).forEach(j -> {
+                            for (int j = 0; j < row.length; j++) {
                                 if (j >= tableRow.getTableCells().size())
                                     tableRow.createCell().setText(row[j]);
                                 else
                                     tableRow.getCell(j).setText(row[j]);
-                            });
+                            }
                         }
                     }
                 }
@@ -72,8 +69,35 @@ public class TextToTextConverter {
             switch (ext) {
                 case "txt", "log", "html" -> {
                     try (PrintWriter writer = new PrintWriter(outputFile)) {
+                        if ("html".equals(ext)) {
+                            writer.println("<html><body>");
+                        }
+
+                        // Xuất paragraph
                         for (XWPFParagraph para : doc.getParagraphs()) {
-                            writer.println(para.getText());
+                            if ("html".equals(ext))
+                                writer.println("<p>" + para.getText() + "</p>");
+                            else
+                                writer.println(para.getText());
+                        }
+
+                        // Xuất table
+                        for (XWPFTable table : doc.getTables()) {
+                            if ("html".equals(ext)) {
+                                writer.println("<table border='1' cellspacing='0' cellpadding='5'>");
+                                for (XWPFTableRow row : table.getRows()) {
+                                    writer.println("<tr>");
+                                    for (XWPFTableCell cell : row.getTableCells()) {
+                                        writer.println("<td>" + cell.getText() + "</td>");
+                                    }
+                                    writer.println("</tr>");
+                                }
+                                writer.println("</table><br>");
+                            }
+                        }
+
+                        if ("html".equals(ext)) {
+                            writer.println("</body></html>");
                         }
                     }
                     break;
@@ -101,31 +125,70 @@ public class TextToTextConverter {
         String inputExt = getFileExtension(inputFile.getName()).toLowerCase();
         String outputExt = getFileExtension(outputFile.getName()).toLowerCase();
 
+        // DOCX → anything
         if ("docx".equals(inputExt)) {
             convertFromDocx(inputFile, outputFile);
-        } else if ("docx".equals(outputExt)) {
-            convertToDocx(inputFile, outputFile);
-        } else if (Arrays.asList("txt","log","csv","html").contains(inputExt) &&
-                   Arrays.asList("txt","log","csv","html").contains(outputExt)) {
+            return;
+        }
 
-            List<String> lines;
+        // Anything → DOCX
+        if ("docx".equals(outputExt)) {
+            convertToDocx(inputFile, outputFile);
+            return;
+        }
+
+        // CSV → HTML (table)
+        if ("csv".equals(inputExt) && "html".equals(outputExt)) {
+            convertCsvToHtml(inputFile, outputFile);
+            return;
+        }
+
+        // TXT/LOG/CSV/HTML → TXT/LOG/CSV/HTML
+        if (Arrays.asList("txt", "log", "csv", "html").contains(inputExt) &&
+            Arrays.asList("txt", "log", "csv", "html").contains(outputExt)) {
+
             if ("csv".equals(inputExt)) {
-                try (CSVReader reader = new CSVReader(new FileReader(inputFile))) {
+                // plain text CSV copy
+                try (CSVReader reader = new CSVReader(new FileReader(inputFile));
+                     PrintWriter writer = new PrintWriter(outputFile)) {
+
                     List<String[]> csvRows = reader.readAll();
-                    lines = new ArrayList<>();
                     for (String[] row : csvRows) {
-                        lines.add(String.join(", ", row));
+                        writer.println(String.join(", ", row));
                     }
                 }
             } else {
-                lines = Files.readAllLines(inputFile.toPath());
+                List<String> lines = Files.readAllLines(inputFile.toPath());
+                try (PrintWriter writer = new PrintWriter(outputFile)) {
+                    for (String line : lines) writer.println(line);
+                }
+            }
+            return;
+        }
+
+        throw new UnsupportedOperationException("Conversion not supported: " + inputExt + " -> " + outputExt);
+    }
+
+    /** NEW — Convert CSV → HTML table */
+    private static void convertCsvToHtml(File csvFile, File htmlFile) throws Exception {
+        try (CSVReader reader = new CSVReader(new FileReader(csvFile));
+             PrintWriter writer = new PrintWriter(htmlFile)) {
+
+            List<String[]> rows = reader.readAll();
+
+            writer.println("<html><body>");
+            writer.println("<table border='1' cellspacing='0' cellpadding='5'>");
+
+            for (String[] row : rows) {
+                writer.println("<tr>");
+                for (String col : row) {
+                    writer.println("<td>" + col + "</td>");
+                }
+                writer.println("</tr>");
             }
 
-            try (PrintWriter writer = new PrintWriter(outputFile)) {
-                for (String line : lines) writer.println(line);
-            }
-        } else {
-            throw new UnsupportedOperationException("Conversion not supported: " + inputExt + " -> " + outputExt);
+            writer.println("</table>");
+            writer.println("</body></html>");
         }
     }
 

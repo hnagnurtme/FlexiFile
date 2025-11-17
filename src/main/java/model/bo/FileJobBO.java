@@ -1,5 +1,54 @@
 package model.bo;
 
+import java.util.Date;
+import java.util.List;
+
+import model.bean.FileJob;
+import model.dao.FileJobDAO;
+import util.FirebaseUtil;
+
 public class FileJobBO {
-    // TODO: Business logic for FileJob
+
+    private final FileJobDAO fileJobDAO = new FileJobDAO();
+
+    /** Lấy danh sách fileJobs của user */
+    public List<FileJob> getJobsForUser(String userId) {
+        return fileJobDAO.getFileJobsByUser(userId);
+    }
+
+    /** Cập nhật trạng thái file */
+    public void markProcessing(FileJob job) {
+        job.setStatus("PROCESSING");
+        job.setUpdatedAt(new Date());
+        fileJobDAO.updateFileJob(job);
+    }
+
+    public void markDone(FileJob job, String resultUrl) {
+        job.setStatus("DONE");
+        job.setResultUrl(resultUrl);
+        job.setUpdatedAt(new Date());
+        fileJobDAO.updateFileJob(job);
+    }
+
+    public void markFailed(FileJob job) {
+        job.setStatus("FAILED");
+        job.setUpdatedAt(new Date());
+        fileJobDAO.updateFileJob(job);
+    }
+
+    /** Signal user khi tất cả file hoàn thành */
+    public void signalUserAllDone(String userId) {
+        // Ví dụ cập nhật flag conversionComplete trong users collection
+        try {
+            fileJobDAO.getFileJobsByUser(userId); // có thể dùng dao để query
+            // Cập nhật signal
+            FirebaseUtil.getFirestore()
+                    .collection("users")
+                    .document(userId)
+                    .update("conversionComplete", true)
+                    .get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
