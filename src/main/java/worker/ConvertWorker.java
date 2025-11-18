@@ -71,7 +71,36 @@ public class ConvertWorker implements Runnable {
         }
 
         // Signal user khi tất cả file hoàn thành
-        // fileJobBO.signalUserAllDone(userId);
+        //fileJobBO.signalUserAllDone(userId);
+    }
+
+    // =========================
+    // Test helper method
+    // Chỉ nhận URL, convert và upload, trả về URL kết quả
+    // =========================
+    public static String convertSingleFile(String fileUrl, String targetFormat) {
+        try {
+            File inputFile = File.createTempFile("input-", "-" + fileUrl.substring(fileUrl.lastIndexOf('/') + 1));
+            CloudinaryUtil.downloadToFile(fileUrl, inputFile.getAbsolutePath());
+
+            File outputFile = File.createTempFile("output-", "." + targetFormat);
+
+            switch (targetFormat.toLowerCase()) {
+                case "pdf" -> PdfConverter.convertToPdf(inputFile, outputFile);
+                case "docx","txt","log","csv","html" -> TextToTextConverter.convert(inputFile, outputFile);
+                case "png","jpg","jpeg","gif","webp" -> ImageConverter.convert(inputFile, outputFile);
+                default -> throw new UnsupportedOperationException("Unsupported target format: " + targetFormat);
+            }
+
+            String resultUrl = CloudinaryUtil.uploadConvertedFile(outputFile);
+            inputFile.delete();
+            outputFile.delete();
+            return resultUrl;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // =========================
