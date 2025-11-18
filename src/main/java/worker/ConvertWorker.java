@@ -10,11 +10,18 @@ import util.ImageConverter;
 import util.PdfConverter;
 import util.TextToTextConverter;
 
+
+
 public class ConvertWorker implements Runnable {
 
     private final List<FileJob> fileJobs;
     private final String userId;
     private final FileJobBO fileJobBO = new FileJobBO();
+
+    public ConvertWorker() {
+        this.fileJobs = null;
+        this.userId = null;
+    }
 
     public ConvertWorker(String userId, List<FileJob> fileJobs) {
         this.userId = userId;
@@ -64,7 +71,7 @@ public class ConvertWorker implements Runnable {
         }
 
         // Signal user khi tất cả file hoàn thành
-        fileJobBO.signalUserAllDone(userId);
+        // fileJobBO.signalUserAllDone(userId);
     }
 
     // =========================
@@ -95,4 +102,38 @@ public class ConvertWorker implements Runnable {
             return null;
         }
     }
+
+    public void process(FileJob job) {
+        try {
+            fileJobBO.markProcessing(job);
+
+            File inputFile = File.createTempFile("input-", "-" + job.getFileName());
+            CloudinaryUtil.downloadToFile(job.getFileUrl(), inputFile.getAbsolutePath());
+
+            String ext = job.getTargetFormat().toLowerCase();
+            File outputFile = File.createTempFile("output-", "." + ext);
+
+            if (ext.equals("pdf")) {
+                PdfConverter.convertToPdf(inputFile, outputFile);
+            } else if (List.of("docx","txt","log","csv","html").contains(ext)) {
+                TextToTextConverter.convert(inputFile, outputFile);
+            } else if (List.of("png","jpg","jpeg","gif","webp").contains(ext)) {
+                ImageConverter.convert(inputFile, outputFile);
+            } else {
+                throw new UnsupportedOperationException("Unsupported target format: " + ext);
+            }
+
+            String resultUrl = CloudinaryUtil.uploadConvertedFile(outputFile);
+
+            fileJobBO.markDone(job, resultUrl);
+
+            inputFile.delete();
+            outputFile.delete();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fileJobBO.markFailed(job);
+        }
+    }
+
 }

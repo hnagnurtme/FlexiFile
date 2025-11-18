@@ -1,29 +1,39 @@
 package worker;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.MessageProperties;
 
 import model.bean.FileJob;
+import config.RabbitMQConfig;
 
 public class WorkerLauncher {
 
-    // Thread pool để chạy worker, mỗi user có 1 thread
-    private static final ExecutorService executor = Executors.newCachedThreadPool();
+    private static final String QUEUE_NAME = "convert_jobs";
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    /** Start worker cho 1 user với danh sách fileJobs */
-    public static void launchWorker(String userId, List<FileJob> jobs) {
-        ConvertWorker worker = new ConvertWorker(userId, jobs);
-        executor.submit(worker);
-    }
+    public static void launchWorker(List<FileJob> jobs) throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setUri(RabbitMQConfig.CLOUDAMQP_URL);
 
-    /** Test helper: chỉ nhận URL file gốc + targetFormat, trả về URL file đích */
-    public static String launchTestSingleFile(String fileUrl, String targetFormat) {
-        return ConvertWorker.convertSingleFile(fileUrl, targetFormat);
-    }
+        try (Connection conn = factory.newConnection();
+             Channel channel = conn.createChannel()) {
 
-    /** Shutdown pool khi server dừng */
-    public static void shutdown() {
-        executor.shutdown();
+            channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+
+            for (FileJob job : jobs) {
+                String json = mapper.writeValueAsString(job);
+                channel.basicPublish(
+                        "", QUEUE_NAME,
+                        MessageProperties.PERSISTENT_TEXT_PLAIN,
+                        json.getBytes("UTF-8")
+                );
+                System.out.println("Published job: " + job.getId());
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ public class FileJob {
 
     public FileJob() {
         // Default constructor
+        this.status = "PENDING";
     }
 
     public FileJob(String id, String userId, String fileName, String fileUrl,
@@ -28,7 +29,7 @@ public class FileJob {
         this.fileName = fileName;
         this.fileUrl = fileUrl;
         this.targetFormat = targetFormat;
-        this.status = status;
+        this.status = status; //Pending, Processing, Done, Failed
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

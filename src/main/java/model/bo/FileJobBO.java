@@ -18,12 +18,18 @@ public class FileJobBO {
 
     /** Cập nhật trạng thái file */
     public void markProcessing(FileJob job) {
+        if (job.getStatus().equals("PROCESSING")) {
+            return; // Đã ở trạng thái PROCESSING
+        }
         job.setStatus("PROCESSING");
         job.setUpdatedAt(new Date());
         fileJobDAO.updateFileJob(job);
     }
 
     public void markDone(FileJob job, String resultUrl) {
+        if (job.getStatus().equals("DONE")) {
+            return; // Đã ở trạng thái DONE
+        }
         job.setStatus("DONE");
         job.setResultUrl(resultUrl);
         job.setUpdatedAt(new Date());
@@ -31,6 +37,9 @@ public class FileJobBO {
     }
 
     public void markFailed(FileJob job) {
+        if (job.getStatus().equals("FAILED")) {
+            return; // Đã ở trạng thái FAILED
+        }
         job.setStatus("FAILED");
         job.setUpdatedAt(new Date());
         fileJobDAO.updateFileJob(job);
