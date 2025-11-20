@@ -43,14 +43,18 @@ public class ConvertWorker implements Runnable {
                 String ext = job.getTargetFormat().toLowerCase();
                 File outputFile = File.createTempFile("output-", "." + ext);
 
-                if (ext.equals("pdf")) {
-                    PdfConverter.convertToPdf(inputFile, outputFile);
-                } else if (List.of("docx","txt","log","csv","html").contains(ext)) {
-                    TextToTextConverter.convert(inputFile, outputFile);
-                } else if (List.of("png","jpg","jpeg","gif","webp").contains(ext)) {
-                    ImageConverter.convert(inputFile, outputFile);
-                } else {
-                    throw new UnsupportedOperationException("Unsupported target format: " + ext);
+                switch (ext) {
+                    case "pdf" -> PdfConverter.convertToPdf(inputFile, outputFile);
+                    case "docx", "txt", "log", "csv", "html" -> {
+                        // Nếu input là PDF, dùng PdfConverter → target text type
+                        if (inputFile.getName().toLowerCase().endsWith(".pdf")) {
+                            PdfConverter.convertPdfToFile(inputFile, outputFile);
+                        } else {
+                            TextToTextConverter.convert(inputFile, outputFile);
+                        }
+                    }
+                    case "png","jpg","jpeg","gif","webp" -> ImageConverter.convert(inputFile, outputFile);
+                    default -> throw new UnsupportedOperationException("Unsupported target format: " + ext);
                 }
 
                 // Upload file kết quả
@@ -87,9 +91,16 @@ public class ConvertWorker implements Runnable {
 
             switch (targetFormat.toLowerCase()) {
                 case "pdf" -> PdfConverter.convertToPdf(inputFile, outputFile);
-                case "docx","txt","log","csv","html" -> TextToTextConverter.convert(inputFile, outputFile);
+                case "docx", "txt", "log", "csv", "html" -> {
+                    // Nếu input là PDF, dùng PdfConverter → target text type
+                    if (inputFile.getName().toLowerCase().endsWith(".pdf")) {
+                        PdfConverter.convertPdfToFile(inputFile, outputFile);
+                    } else {
+                        TextToTextConverter.convert(inputFile, outputFile);
+                    }
+                }
                 case "png","jpg","jpeg","gif","webp" -> ImageConverter.convert(inputFile, outputFile);
-                default -> throw new UnsupportedOperationException("Unsupported target format: " + targetFormat);
+                default -> throw new UnsupportedOperationException("Unsupported target format: " + targetFormat.toLowerCase());
             }
 
             String resultUrl = CloudinaryUtil.uploadConvertedFile(outputFile);
@@ -113,15 +124,20 @@ public class ConvertWorker implements Runnable {
             String ext = job.getTargetFormat().toLowerCase();
             File outputFile = File.createTempFile("output-", "." + ext);
 
-            if (ext.equals("pdf")) {
-                PdfConverter.convertToPdf(inputFile, outputFile);
-            } else if (List.of("docx","txt","log","csv","html").contains(ext)) {
-                TextToTextConverter.convert(inputFile, outputFile);
-            } else if (List.of("png","jpg","jpeg","gif","webp").contains(ext)) {
-                ImageConverter.convert(inputFile, outputFile);
-            } else {
-                throw new UnsupportedOperationException("Unsupported target format: " + ext);
+            switch (ext) {
+                case "pdf" -> PdfConverter.convertToPdf(inputFile, outputFile);
+                case "docx", "txt", "log", "csv", "html" -> {
+                    // Nếu input là PDF, dùng PdfConverter → target text type
+                    if (inputFile.getName().toLowerCase().endsWith(".pdf")) {
+                        PdfConverter.convertPdfToFile(inputFile, outputFile);
+                    } else {
+                        TextToTextConverter.convert(inputFile, outputFile);
+                    }
+                }
+                case "png","jpg","jpeg","gif","webp" -> ImageConverter.convert(inputFile, outputFile);
+                default -> throw new UnsupportedOperationException("Unsupported target format: " + ext);
             }
+
 
             String resultUrl = CloudinaryUtil.uploadConvertedFile(outputFile);
 
