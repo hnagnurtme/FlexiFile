@@ -1,10 +1,13 @@
 package util;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -24,6 +27,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFPictureData;
@@ -215,6 +219,76 @@ public class PdfConverter {
             default -> throw new UnsupportedOperationException("File type not supported: " + ext);
         }
     }
+
+    /** PDF → TXT / LOG */
+    public static void convertPdfToText(File pdfFile, File outputFile) throws IOException {
+        try (PDDocument pdfDoc = PDDocument.load(pdfFile)) {
+            PDFTextStripper stripper = new PDFTextStripper();
+            String text = stripper.getText(pdfDoc);
+            Files.writeString(outputFile.toPath(), text);
+        }
+    }
+
+    /** PDF → HTML */
+    public static void convertPdfToHtml(File pdfFile, File outputFile) throws IOException {
+        try (PDDocument pdfDoc = PDDocument.load(pdfFile)) {
+            PDFTextStripper stripper = new PDFTextStripper();
+            String text = stripper.getText(pdfDoc);
+            StringBuilder html = new StringBuilder("<html><body>\n");
+            for (String line : text.split("\r?\n")) {
+                html.append("<p>").append(line).append("</p>\n");
+            }
+            html.append("</body></html>");
+            Files.writeString(outputFile.toPath(), html.toString());
+        }
+    }
+
+    /** PDF → DOCX */
+    public static void convertPdfToDocx(File pdfFile, File docxFile) throws IOException {
+        try (PDDocument pdfDoc = PDDocument.load(pdfFile);
+            XWPFDocument docx = new XWPFDocument()) {
+
+            PDFTextStripper stripper = new PDFTextStripper();
+            String text = stripper.getText(pdfDoc);
+
+            for (String line : text.split("\r?\n")) {
+                XWPFParagraph para = docx.createParagraph();
+                para.createRun().setText(line);
+            }
+
+            try (FileOutputStream out = new FileOutputStream(docxFile)) {
+                docx.write(out);
+            }
+        }
+    }
+
+    /** PDF → CSV (simple, split by whitespace/tab) */
+    public static void convertPdfToCsv(File pdfFile, File csvFile) throws IOException {
+        try (PDDocument pdfDoc = PDDocument.load(pdfFile);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile))) {
+
+            PDFTextStripper stripper = new PDFTextStripper();
+            String text = stripper.getText(pdfDoc);
+            for (String line : text.split("\r?\n")) {
+                String csvLine = line.trim().replaceAll("\\s+", ",");
+                writer.write(csvLine);
+                writer.newLine();
+            }
+        }
+    }
+
+    /** General method: PDF → any supported type */
+    public static void convertPdfToFile(File pdfFile, File outputFile) throws IOException {
+        String ext = getFileExtension(outputFile.getName()).toLowerCase();
+        switch (ext) {
+            case "txt", "log" -> convertPdfToText(pdfFile, outputFile);
+            case "html" -> convertPdfToHtml(pdfFile, outputFile);
+            case "docx" -> convertPdfToDocx(pdfFile, outputFile);
+            case "csv" -> convertPdfToCsv(pdfFile, outputFile);
+            default -> throw new UnsupportedOperationException("Unsupported output type: " + ext);
+        }
+    }
+
 
     private static String getFileExtension(String fileName) {
         int dot = fileName.lastIndexOf('.');
