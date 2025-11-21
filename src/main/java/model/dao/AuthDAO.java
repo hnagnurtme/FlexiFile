@@ -195,7 +195,7 @@ public class AuthDAO {
                 .whereEqualTo("verified", true)
                 .get()
                 .get();
-            
+
             String hashedPassword = HashPassword.hashPassword(newPassword);
 
             // Find user by email
@@ -208,7 +208,7 @@ public class AuthDAO {
                 return false; // User not found
             }
 
-            String userId = userQuery.getDocuments().get(0).getId();    
+            String userId = userQuery.getDocuments().get(0).getId();
 
             // Update password
             Map<String, Object> updates = new HashMap<>();
@@ -218,7 +218,7 @@ public class AuthDAO {
                 .document(userId)
                 .update(updates)
                 .get(); // Chờ cho đến khi hoàn thành
-            
+
             // Delete all OTPs for this email
             QuerySnapshot otpQuery = db.collection(OTP_COLLECTION_NAME)
                     .whereEqualTo("email", email)
@@ -231,6 +231,101 @@ public class AuthDAO {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    /**
+     * Cập nhật thông tin user sau khi thanh toán thành công
+     * - Cập nhật plan type
+     * - Cộng thêm remaining converts
+     * - Nâng cấp role nếu cần (USER -> USERPRO)
+     */
+    public boolean updateUserAfterPayment(String userId, String planType, int additionalConverts) {
+        try {
+            // Lấy thông tin user hiện tại
+            DocumentSnapshot userDoc = db.collection(COLLECTION_NAME)
+                    .document(userId)
+                    .get()
+                    .get();
+
+            if (!userDoc.exists()) {
+                System.err.println("User not found: " + userId);
+                return false;
+            }
+
+            // Lấy số lượt convert hiện tại
+            Long currentConverts = userDoc.getLong("remainingConverts");
+            int newRemainingConverts = (currentConverts != null ? currentConverts.intValue() : 0) + additionalConverts;
+
+            // Xác định role mới
+            String currentRole = userDoc.getString("role");
+            String newRole = currentRole;
+
+            // Nếu user đang là USER thường và mua gói, nâng cấp lên USERPRO
+            if ("USER".equals(currentRole) && additionalConverts > 0) {
+                newRole = "USERPRO";
+            }
+
+            // Cập nhật user
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("planType", planType);
+            updates.put("remainingConverts", newRemainingConverts);
+            updates.put("role", newRole);
+            updates.put("updatedAt", new Date());
+
+            db.collection(COLLECTION_NAME)
+                    .document(userId)
+                    .update(updates)
+                    .get();
+
+            System.out.println("User updated after payment: " + userId +
+                             " | Plan: " + planType +
+                             " | Converts: " + newRemainingConverts +
+                             " | Role: " + newRole);
+
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Error updating user after payment: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Lấy user theo ID
+     */
+    public User getUserById(String userId) {
+        try {
+            DocumentSnapshot doc = db.collection(COLLECTION_NAME)
+                    .document(userId)
+                    .get()
+                    .get();
+
+            if (!doc.exists()) {
+                return null;
+            }
+
+            User user = new User();
+            user.setId(doc.getId());
+            user.setUsername(doc.getString("username"));
+            user.setEmail(doc.getString("email"));
+            user.setFullName(doc.getString("fullName"));
+            user.setRole(doc.getString("role"));
+            user.setPlanType(doc.getString("planType"));
+
+            Long remainingConverts = doc.getLong("remainingConverts");
+            user.setRemainingConverts(remainingConverts != null ? remainingConverts.intValue() : 0);
+
+            user.setCreatedAt(doc.getDate("createdAt"));
+            user.setUpdatedAt(doc.getDate("updatedAt"));
+
+            return user;
+
+        } catch (Exception e) {
+            System.err.println("Error getting user by ID: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 }

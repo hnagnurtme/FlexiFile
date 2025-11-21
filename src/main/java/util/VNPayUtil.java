@@ -55,30 +55,38 @@ public class VNPayUtil {
             String vnp_ExpireDate = formatter.format(cld.getTime());
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
             
-            // Build data and hash
+            // Build hash data and query string
             List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
             Collections.sort(fieldNames);
+
             StringBuilder hashData = new StringBuilder();
             StringBuilder query = new StringBuilder();
-            
-            for (String fieldName : fieldNames) {
+
+            Iterator<String> itr = fieldNames.iterator();
+            while (itr.hasNext()) {
+                String fieldName = itr.next();
                 String fieldValue = vnp_Params.get(fieldName);
-                if (fieldValue != null && !fieldValue.isEmpty()) {
-                    // Build hash data
-                    hashData.append(fieldName).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                    // Build query
-                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()))
-                         .append('=')
-                         .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                    
-                    if (fieldNames.indexOf(fieldName) < fieldNames.size() - 1) {
+                if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                    // Build hash data (RAW values)
+                    hashData.append(fieldName);
+                    hashData.append('=');
+                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString()));
+
+                    // Build query string (URL encoded)
+                    query.append(URLEncoder.encode(fieldName, StandardCharsets.UTF_8.toString()));
+                    query.append('=');
+                    query.append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString()));
+
+                    if (itr.hasNext()) {
                         query.append('&');
                         hashData.append('&');
                     }
                 }
             }
-            
-            String vnp_SecureHash = hmacSHA512(vnp_HashSecret, hashData.toString());
+
+            String hashDataStr = hashData.toString();
+            System.out.println("Creating payment - Hash data: " + hashDataStr);
+            String vnp_SecureHash = hmacSHA512(vnp_HashSecret, hashDataStr);
             query.append("&vnp_SecureHash=").append(vnp_SecureHash);
             
             return vnp_PayUrl + "?" + query.toString();
@@ -104,20 +112,27 @@ public class VNPayUtil {
         Collections.sort(fieldNames);
         StringBuilder sb = new StringBuilder();
         Iterator<String> itr = fieldNames.iterator();
-        
+
         while (itr.hasNext()) {
             String fieldName = itr.next();
             String fieldValue = fields.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                sb.append(fieldName);
-                sb.append("=");
-                sb.append(fieldValue);
-                if (itr.hasNext()) {
-                    sb.append("&");
+                try {
+                    sb.append(fieldName);
+                    sb.append('=');
+                    sb.append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString()));
+                    if (itr.hasNext()) {
+                        sb.append('&');
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
-        return hmacSHA512(vnp_HashSecret, sb.toString());
+
+        String hashData = sb.toString();
+        System.out.println("Hash data string: " + hashData);
+        return hmacSHA512(vnp_HashSecret, hashData);
     }
     
     public static String hmacSHA512(final String key, final String data) {
