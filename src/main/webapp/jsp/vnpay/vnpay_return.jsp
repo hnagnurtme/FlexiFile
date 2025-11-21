@@ -160,17 +160,5 @@
             🏠 Về trang chủ
         </a>
     </div>
-    
-    <!-- Debug section -->
-    <% if (payment != null) { %>
-        <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-            <h3>🔧 Thông tin chi tiết</h3>
-            <p><strong>Payment ID:</strong> <%= payment.getId() %></p>
-            <p><strong>User:</strong> <%= user != null ? user.getEmail() : "NULL" %></p>
-            <p><strong>Status:</strong> <%= payment.getStatus() %></p>
-            <p><strong>Plan Type:</strong> <%= payment.getPlanType() %></p>
-            <p><strong>Amount:</strong> <%= String.format("%,d", (long)payment.getAmount()) %> VND</p>
-        </div>
-    <% } %>
 </body>
 </html>
