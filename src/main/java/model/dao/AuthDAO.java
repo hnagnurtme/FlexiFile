@@ -64,13 +64,13 @@ public class AuthDAO {
                     .whereEqualTo("email", email)
                     .get()
                     .get();
-            
+
             if (foundUser.isEmpty()) {
                 return null;
             }
-            
+
             boolean passwordMatch = HashPassword.checkPassword(
-                    password, 
+                    password,
                     foundUser.getDocuments().get(0).getString("password")
             );
             if (!passwordMatch) {
@@ -84,14 +84,17 @@ public class AuthDAO {
             user.setEmail(doc.getString("email"));
             user.setFullName(doc.getString("fullName"));
             user.setRole(doc.getString("role"));
+            user.setPlanType(doc.getString("planType"));
+            user.setAvatarUrl(doc.getString("avatarUrl"));
 
             Long remainingConverts = doc.getLong("remainingConverts");
             user.setRemainingConverts(remainingConverts != null ? remainingConverts.intValue() : 0);
 
             user.setCreatedAt(doc.getDate("createdAt"));
+            user.setUpdatedAt(doc.getDate("updatedAt"));
 
             System.out.println("Login successfully: " + user.getEmail());
-            
+
             return user;
         } catch (Exception e) {
             e.printStackTrace();
@@ -313,6 +316,7 @@ public class AuthDAO {
             user.setFullName(doc.getString("fullName"));
             user.setRole(doc.getString("role"));
             user.setPlanType(doc.getString("planType"));
+            user.setAvatarUrl(doc.getString("avatarUrl"));
 
             Long remainingConverts = doc.getLong("remainingConverts");
             user.setRemainingConverts(remainingConverts != null ? remainingConverts.intValue() : 0);
@@ -326,6 +330,130 @@ public class AuthDAO {
             System.err.println("Error getting user by ID: " + e.getMessage());
             e.printStackTrace();
             return null;
+        }
+    }
+
+    /**
+     * Cập nhật thông tin profile của user
+     * - Cập nhật fullName, username, avatarUrl
+     */
+    public boolean updateUserProfile(String userId, String fullName, String username, String avatarUrl) {
+        try {
+            // Validate user exists
+            DocumentSnapshot userDoc = db.collection(COLLECTION_NAME)
+                    .document(userId)
+                    .get()
+                    .get();
+
+            if (!userDoc.exists()) {
+                System.err.println("User not found: " + userId);
+                return false;
+            }
+
+            // Prepare updates
+            Map<String, Object> updates = new HashMap<>();
+
+            if (fullName != null && !fullName.trim().isEmpty()) {
+                updates.put("fullName", fullName.trim());
+            }
+
+            if (username != null && !username.trim().isEmpty()) {
+                updates.put("username", username.trim());
+            }
+
+            if (avatarUrl != null) {
+                updates.put("avatarUrl", avatarUrl);
+            }
+
+            updates.put("updatedAt", new Date());
+
+            // Update user in Firestore
+            db.collection(COLLECTION_NAME)
+                    .document(userId)
+                    .update(updates)
+                    .get();
+
+            System.out.println("User profile updated successfully: " + userId);
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Error updating user profile: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Cập nhật avatar URL của user
+     */
+    public boolean updateUserAvatar(String userId, String avatarUrl) {
+        try {
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("avatarUrl", avatarUrl);
+            updates.put("updatedAt", new Date());
+
+            db.collection(COLLECTION_NAME)
+                    .document(userId)
+                    .update(updates)
+                    .get();
+
+            System.out.println("User avatar updated successfully: " + userId);
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Error updating user avatar: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Đổi mật khẩu user
+     * - Kiểm tra mật khẩu cũ
+     * - Cập nhật mật khẩu mới
+     */
+    public boolean changePassword(String userId, String oldPassword, String newPassword) {
+        try {
+            // Lấy thông tin user
+            DocumentSnapshot userDoc = db.collection(COLLECTION_NAME)
+                    .document(userId)
+                    .get()
+                    .get();
+
+            if (!userDoc.exists()) {
+                System.err.println("User not found: " + userId);
+                return false;
+            }
+
+            // Verify old password
+            String currentHashedPassword = userDoc.getString("password");
+            boolean passwordMatch = HashPassword.checkPassword(oldPassword, currentHashedPassword);
+
+            if (!passwordMatch) {
+                System.err.println("Old password incorrect for user: " + userId);
+                return false;
+            }
+
+            // Hash new password
+            String newHashedPassword = HashPassword.hashPassword(newPassword);
+
+            // Update password
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("password", newHashedPassword);
+            updates.put("updatedAt", new Date());
+
+            db.collection(COLLECTION_NAME)
+                    .document(userId)
+                    .update(updates)
+                    .get();
+
+            System.out.println("Password changed successfully for user: " + userId);
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Error changing password: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 }

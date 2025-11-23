@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.util.Map;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 
 public class CloudinaryUtil {
@@ -99,7 +100,16 @@ public class CloudinaryUtil {
     // 6. Upload InputStream to SOURCE folder
     // =============================
     public static String uploadSourceStream(InputStream inputStream, String fileName) throws Exception {
-        Map upload = cloudinary.uploader().upload(inputStream, ObjectUtils.asMap(
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[1024];
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+        buffer.flush();
+        byte[] byteArray = buffer.toByteArray();
+
+        Map upload = cloudinary.uploader().upload(byteArray, ObjectUtils.asMap(
                 "folder", CloudinaryConfig.SOURCE_FOLDER,
                 "resource_type", "auto",
                 "public_id", fileName // optional: set file name in Cloudinary
@@ -111,10 +121,42 @@ public class CloudinaryUtil {
     // 7. Upload InputStream to CONVERTED folder
     // =============================
     public static String uploadConvertedStream(InputStream inputStream, String fileName) throws Exception {
-        Map upload = cloudinary.uploader().upload(inputStream, ObjectUtils.asMap(
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[1024];
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+        buffer.flush();
+        byte[] byteArray = buffer.toByteArray();
+
+        Map upload = cloudinary.uploader().upload(byteArray, ObjectUtils.asMap(
                 "folder", CloudinaryConfig.CONVERTED_FOLDER,
                 "resource_type", "auto",
                 "public_id", fileName
+        ));
+        return upload.get("secure_url").toString();
+    }
+
+    // =============================
+    // 8. Upload avatar to AVATARS folder
+    // =============================
+    public static String uploadAvatar(InputStream inputStream, String fileName) throws Exception {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[1024];
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+        buffer.flush();
+        byte[] byteArray = buffer.toByteArray();
+
+        Map upload = cloudinary.uploader().upload(byteArray, ObjectUtils.asMap(
+                "folder", CloudinaryConfig.AVATARS_FOLDER,
+                "resource_type", "image",
+                "public_id", fileName,
+                "overwrite", true,
+                "transformation", new Transformation().width(500).height(500).crop("fill").gravity("face")
         ));
         return upload.get("secure_url").toString();
     }

@@ -104,17 +104,44 @@ public class PaymentHistoryDAO {
      */
     public List<PaymentHistory> getPaymentsByUserId(String userId) {
         try {
-            QuerySnapshot querySnapshot = db.collection(COLLECTION_NAME)
-                    .whereEqualTo("userId", userId)
-                    .orderBy("paymentDate", Direction.DESCENDING)
-                    .get()
-                    .get();
+            System.out.println("DEBUG PaymentHistoryDAO: Getting payments for userId: " + userId);
+            QuerySnapshot querySnapshot;
+
+            // Thử query với orderBy trước (cần index)
+            try {
+                querySnapshot = db.collection(COLLECTION_NAME)
+                        .whereEqualTo("userId", userId)
+                        .orderBy("paymentDate", Direction.DESCENDING)
+                        .get()
+                        .get();
+                System.out.println("DEBUG: Query with orderBy successful");
+            } catch (Exception indexError) {
+                // Nếu không có index, query đơn giản và sắp xếp trong code
+                System.out.println("DEBUG: Index not found, using in-memory sorting. Error: " + indexError.getMessage());
+                querySnapshot = db.collection(COLLECTION_NAME)
+                        .whereEqualTo("userId", userId)
+                        .get()
+                        .get();
+            }
+
+            System.out.println("DEBUG: Query returned " + querySnapshot.size() + " documents");
 
             List<PaymentHistory> paymentList = new ArrayList<>();
             for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                paymentList.add(mapDocumentToPayment(doc));
+                PaymentHistory payment = mapDocumentToPayment(doc);
+                System.out.println("DEBUG: Mapped payment - ID: " + payment.getId() + ", OrderID: " + payment.getOrderId() + ", UserId: " + payment.getUserId());
+                paymentList.add(payment);
             }
 
+            // Sắp xếp theo paymentDate giảm dần (mới nhất trước)
+            paymentList.sort((p1, p2) -> {
+                if (p1.getPaymentDate() == null && p2.getPaymentDate() == null) return 0;
+                if (p1.getPaymentDate() == null) return 1;
+                if (p2.getPaymentDate() == null) return -1;
+                return p2.getPaymentDate().compareTo(p1.getPaymentDate());
+            });
+
+            System.out.println("DEBUG: Returning " + paymentList.size() + " payments after sorting");
             return paymentList;
 
         } catch (Exception e) {
@@ -129,17 +156,38 @@ public class PaymentHistoryDAO {
      */
     public List<PaymentHistory> getSuccessfulPaymentsByUserId(String userId) {
         try {
-            QuerySnapshot querySnapshot = db.collection(COLLECTION_NAME)
-                    .whereEqualTo("userId", userId)
-                    .whereEqualTo("status", "SUCCESS")
-                    .orderBy("paymentDate", Direction.DESCENDING)
-                    .get()
-                    .get();
+            QuerySnapshot querySnapshot;
+
+            // Thử query với orderBy trước (cần index)
+            try {
+                querySnapshot = db.collection(COLLECTION_NAME)
+                        .whereEqualTo("userId", userId)
+                        .whereEqualTo("status", "SUCCESS")
+                        .orderBy("paymentDate", Direction.DESCENDING)
+                        .get()
+                        .get();
+            } catch (Exception indexError) {
+                // Nếu không có index, query đơn giản và sắp xếp trong code
+                System.out.println("Index not found for successful payments, using in-memory sorting");
+                querySnapshot = db.collection(COLLECTION_NAME)
+                        .whereEqualTo("userId", userId)
+                        .whereEqualTo("status", "SUCCESS")
+                        .get()
+                        .get();
+            }
 
             List<PaymentHistory> paymentList = new ArrayList<>();
             for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                 paymentList.add(mapDocumentToPayment(doc));
             }
+
+            // Sắp xếp theo paymentDate giảm dần (mới nhất trước)
+            paymentList.sort((p1, p2) -> {
+                if (p1.getPaymentDate() == null && p2.getPaymentDate() == null) return 0;
+                if (p1.getPaymentDate() == null) return 1;
+                if (p2.getPaymentDate() == null) return -1;
+                return p2.getPaymentDate().compareTo(p1.getPaymentDate());
+            });
 
             return paymentList;
 

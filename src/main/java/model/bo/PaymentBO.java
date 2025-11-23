@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import model.bean.PaymentHistory;
-import model.bean.User;
 import model.dao.PaymentHistoryDAO;
 import model.dao.AuthDAO;
 
