@@ -146,6 +146,7 @@
     </dependencies>
 
     <build>
+        <finalName>FlexiFile</finalName>
         <plugins>
 
             <!-- Compiler -->
