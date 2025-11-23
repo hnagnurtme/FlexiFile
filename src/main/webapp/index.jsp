@@ -6,6 +6,9 @@
     <title>Document</title>
 </head>
 <body>
-    HELLO WORLD
+    <script>
+        window.location.href = "jsp/login.jsp";
+    </script>
+    
 </body>
 </html>

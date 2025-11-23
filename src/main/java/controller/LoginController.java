@@ -44,7 +44,12 @@ public class LoginController extends HttpServlet {
             
             session.setAttribute("isLoggedIn", true);
             session.setAttribute("email", email);
+            session.setAttribute("fullName", user.getFullName());
+            session.setAttribute("userId", user.getId());   
+            session.setAttribute("role", user.getRole());
+            session.setAttribute("avatar", user.getAvatarUrl());
             session.setAttribute("loginTime", System.currentTimeMillis());
+            session.setAttribute("user", user);
             session.setMaxInactiveInterval(30 * 60); // 30 phút
 
             response.sendRedirect("homeServlet");
