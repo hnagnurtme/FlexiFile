@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="model.bean.User" %>
 <%@ page import="model.bean.PaymentHistory" %>
+<%@ page import="model.bean.ConvertHistory" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%
@@ -12,6 +13,13 @@
 
     @SuppressWarnings("unchecked")
     List<PaymentHistory> paymentHistory = (List<PaymentHistory>) request.getAttribute("paymentHistory");
+    
+    @SuppressWarnings("unchecked")
+    List<ConvertHistory> convertHistory = (List<ConvertHistory>) request.getAttribute("convertHistory");
+    
+    Integer totalConverts = (Integer) request.getAttribute("totalConverts");
+    if (totalConverts == null) totalConverts = 0;
+    
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 %>
 <!DOCTYPE html>
@@ -467,6 +475,137 @@
             transform: scale(1.05);
         }
 
+        .convert-history {
+            margin-top: 20px;
+        }
+
+        .convert-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .convert-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .convert-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .convert-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .convert-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .convert-details {
+            flex: 1;
+        }
+
+        .convert-filename {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+
+        .convert-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .format-arrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: white;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .format-arrow .source {
+            color: #667eea;
+        }
+
+        .format-arrow .target {
+            color: #764ba2;
+        }
+
+        .convert-time {
+            color: #999;
+            font-size: 11px;
+        }
+
+        .btn-download-small {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-download-small:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .view-all-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .view-all-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .view-all-link a:hover {
+            color: #5568d3;
+            gap: 10px;
+        }
+
         @media (max-width: 768px) {
             .profile-grid {
                 grid-template-columns: 1fr;
@@ -489,7 +628,7 @@
         <div class="header">
             <h1><i class="fas fa-user-circle"></i> Hồ sơ của tôi</h1>
             <div class="nav-buttons">
-                <a href="${pageContext.request.contextPath}/homeServlet" class="btn btn-outline">
+                <a href="${pageContext.request.contextPath}/upload" class="btn btn-outline">
                     <i class="fas fa-home"></i> Trang chủ
                 </a>
                 <a href="${pageContext.request.contextPath}/payment" class="btn btn-primary">
@@ -525,8 +664,8 @@
                         <div class="stat-label">Lượt convert</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value"><%= paymentHistory != null ? paymentHistory.size() : 0 %></div>
-                        <div class="stat-label">Giao dịch</div>
+                        <div class="stat-value"><%= totalConverts %></div>
+                        <div class="stat-label">Đã convert</div>
                     </div>
                 </div>
 
@@ -571,6 +710,71 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- ✅ Convert History Section -->
+        <div class="card convert-history">
+            <h2 class="section-title">
+                <i class="fas fa-history"></i>
+                File đã chuyển đổi gần đây
+            </h2>
+
+            <% if (convertHistory != null && !convertHistory.isEmpty()) { %>
+                <div class="convert-grid">
+                    <% for (ConvertHistory item : convertHistory) { %>
+                        <div class="convert-item">
+                            <div class="convert-info">
+                                <div class="convert-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="convert-details">
+                                    <div class="convert-filename" title="<%= item.getFileName() %>">
+                                        <%= item.getFileName() %>
+                                    </div>
+                                    <div class="convert-meta">
+                                        <span class="format-arrow">
+                                            <span class="source"><%= item.getSourceFormat().toUpperCase() %></span>
+                                            <i class="fas fa-arrow-right" style="font-size: 10px;"></i>
+                                            <span class="target"><%= item.getTargetFormat().toUpperCase() %></span>
+                                        </span>
+                                        <span class="convert-time">
+                                            <i class="fas fa-clock"></i>
+                                            <%= item.getConvertedAt() != null ? sdf.format(item.getConvertedAt()) : "N/A" %>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <% if (item.getResultUrl() != null && !item.getResultUrl().isEmpty()) { %>
+                                <a href="<%= item.getResultUrl() %>" 
+                                   class="btn-download-small" 
+                                   download 
+                                   target="_blank">
+                                    <i class="fas fa-download"></i>
+                                    Tải xuống
+                                </a>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+
+                <% if (totalConverts > 5) { %>
+                    <div class="view-all-link">
+                        <a href="${pageContext.request.contextPath}/convert-history">
+                            Xem tất cả (<%= totalConverts %> file)
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                <% } %>
+
+            <% } else { %>
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>Chưa có file nào được chuyển đổi</p>
+                    <a href="${pageContext.request.contextPath}/upload" class="btn btn-primary" style="margin-top: 15px;">
+                        <i class="fas fa-upload"></i> Bắt đầu chuyển đổi
+                    </a>
+                </div>
+            <% } %>
         </div>
 
         <!-- Payment History -->

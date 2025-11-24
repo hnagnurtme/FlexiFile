@@ -12,8 +12,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
+import model.bean.ConvertHistory;
 import model.bean.PaymentHistory;
 import model.bean.User;
+import model.bo.ConvertHistoryBO;
 import model.bo.PaymentBO;
 import model.dao.AuthDAO;
 import util.CloudinaryUtil;
@@ -27,12 +29,14 @@ import util.CloudinaryUtil;
 public class ProfileServlet extends HttpServlet {
 
     private PaymentBO paymentBO;
+    private ConvertHistoryBO convertHistoryBO;
     private AuthDAO authDAO;
 
     @Override
     public void init() throws ServletException {
         super.init();
         this.paymentBO = new PaymentBO();
+        this.convertHistoryBO = new ConvertHistoryBO();
         this.authDAO = new AuthDAO();
     }
 
@@ -67,6 +71,19 @@ public class ProfileServlet extends HttpServlet {
                 }
             }
             request.setAttribute("paymentHistory", paymentHistory);
+
+            List<ConvertHistory> convertHistory = convertHistoryBO.getRecentConverts(user.getId());
+            System.out.println("DEBUG: Convert History count: " + (convertHistory != null ? convertHistory.size() : "null"));
+            if (convertHistory != null && !convertHistory.isEmpty()) {
+                for (ConvertHistory ch : convertHistory) {
+                    System.out.println("DEBUG: Convert - File: " + ch.getFileName() + ", Status: " + ch.getStatus());
+                }
+            }
+            request.setAttribute("convertHistory", convertHistory);
+
+            int totalConverts = convertHistoryBO.countSuccessfulConverts(user.getId());
+            System.out.println("DEBUG: Total Converts: " + totalConverts);
+            request.setAttribute("totalConverts", totalConverts);
 
             // Forward đến profile JSP
             request.getRequestDispatcher("/jsp/profile.jsp").forward(request, response);
