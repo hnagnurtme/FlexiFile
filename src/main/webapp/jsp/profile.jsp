@@ -720,8 +720,14 @@
             </h2>
 
             <% if (convertHistory != null && !convertHistory.isEmpty()) { %>
-                <div class="convert-grid">
-                    <% for (ConvertHistory item : convertHistory) { %>
+                <%-- Có convert history → Hiển thị danh sách --%>
+                <div class="convert-grid" id="convertGrid">
+                    <% 
+                    // Chỉ hiển thị 5 files đầu tiên
+                    int displayCount = Math.min(5, convertHistory.size());
+                    for (int i = 0; i < displayCount; i++) { 
+                        ConvertHistory item = convertHistory.get(i);
+                    %>
                         <div class="convert-item">
                             <div class="convert-info">
                                 <div class="convert-icon">
@@ -746,7 +752,10 @@
                             </div>
                             <% if (item.getResultUrl() != null && !item.getResultUrl().isEmpty()) { %>
                                 <a href="<%= item.getResultUrl() %>" 
-                                   class="btn-download-small" 
+                                   class="btn-download-small download-link" 
+                                   data-original-url="<%= item.getResultUrl() %>"
+                                   data-filename="<%= item.getFileName() %>"
+                                   data-target-format="<%= item.getTargetFormat() %>"
                                    download 
                                    target="_blank">
                                     <i class="fas fa-download"></i>
@@ -757,16 +766,41 @@
                     <% } %>
                 </div>
 
-                <% if (totalConverts > 5) { %>
+                <%-- ✅ Load More / Collapse Button --%>
+                <% if (convertHistory.size() > 5) { %>
                     <div class="view-all-link">
-                        <a href="${pageContext.request.contextPath}/convert-history">
-                            Xem tất cả (<%= totalConverts %> file)
-                            <i class="fas fa-arrow-right"></i>
+                        <a href="javascript:void(0)" id="loadMoreBtn" onclick="loadMoreConverts()">
+                            Xem thêm (<span id="remainingCount"><%= convertHistory.size() - 5 %></span> file)
+                            <i class="fas fa-chevron-down"></i>
+                        </a>
+                        <a href="javascript:void(0)" id="collapseBtn" onclick="collapseConverts()" style="display: none;">
+                            Thu gọn
+                            <i class="fas fa-chevron-up"></i>
                         </a>
                     </div>
                 <% } %>
 
+                <%-- ✅ Hidden data để JavaScript load thêm --%>
+                <script id="convertHistoryData" type="application/json">
+                [
+                    <% 
+                    for (int i = 0; i < convertHistory.size(); i++) { 
+                        ConvertHistory item = convertHistory.get(i);
+                        if (i > 0) out.print(",");
+                    %>
+                    {
+                        "fileName": "<%= item.getFileName().replace("\"", "\\\"") %>",
+                        "sourceFormat": "<%= item.getSourceFormat() %>",
+                        "targetFormat": "<%= item.getTargetFormat() %>",
+                        "resultUrl": "<%= item.getResultUrl() %>",
+                        "convertedAt": "<%= item.getConvertedAt() != null ? sdf.format(item.getConvertedAt()) : "" %>"
+                    }
+                    <% } %>
+                ]
+                </script>
+
             <% } else { %>
+                <%-- KHÔNG có convert history → Hiển thị empty state --%>
                 <div class="empty-state">
                     <i class="fas fa-inbox"></i>
                     <p>Chưa có file nào được chuyển đổi</p>
@@ -903,14 +937,14 @@
                 </div>
                 <div class="form-group">
                     <label for="newPassword">Mật khẩu mới</label>
-                    <input type="password" id="newPassword" name="newPassword" minlength="6" required>
+                    <input type="password" id="newPassword" name="newPassword" minlength="8" required>
                     <small style="color: #666; font-size: 12px;">
-                        <i class="fas fa-info-circle"></i> Tối thiểu 6 ký tự
+                        <i class="fas fa-info-circle"></i> Tối thiểu 8 ký tự
                     </small>
                 </div>
                 <div class="form-group">
                     <label for="confirmPassword">Xác nhận mật khẩu mới</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" minlength="6" required>
+                    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">
                     <i class="fas fa-save"></i> Đổi mật khẩu
@@ -920,6 +954,169 @@
     </div>
 
     <script>
+        // ✅ Load more converts logic
+        var allConverts = [];
+        var currentDisplayCount = 5;
+        var loadMoreStep = 5;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load convert history data
+            var dataScript = document.getElementById('convertHistoryData');
+            if (dataScript) {
+                try {
+                    allConverts = JSON.parse(dataScript.textContent);
+                    console.log('📦 Loaded ALL converts:', allConverts.length);
+                } catch (e) {
+                    console.error('❌ Error parsing convert history data:', e);
+                }
+            }
+
+            // Process download links
+            processDownloadLinks();
+        });
+
+        function processDownloadLinks() {
+            var downloadLinks = document.querySelectorAll('.download-link');
+            
+            downloadLinks.forEach(function(link) {
+                var originalUrl = link.getAttribute('data-original-url');
+                
+                if (originalUrl && originalUrl.includes('cloudinary.com') && originalUrl.includes('/upload/')) {
+                    var uploadIndex = originalUrl.indexOf('/upload/');
+                    
+                    if (uploadIndex !== -1) {
+                        var part1 = originalUrl.substring(0, uploadIndex + 8);
+                        var part2 = originalUrl.substring(uploadIndex + 8);
+                        
+                        var downloadUrl = part1 + 'fl_attachment/' + part2;
+                        link.href = downloadUrl;
+                        
+                        console.log('🔗 Original:', originalUrl);
+                        console.log('📥 Download:', downloadUrl);
+                    }
+                }
+            });
+        }
+
+        function loadMoreConverts() {
+            var grid = document.getElementById('convertGrid');
+            var loadMoreBtn = document.getElementById('loadMoreBtn');
+            var collapseBtn = document.getElementById('collapseBtn');
+            var remainingCount = document.getElementById('remainingCount');
+            
+            // Tính toán số lượng cần load
+            var nextDisplayCount = Math.min(currentDisplayCount + loadMoreStep, allConverts.length);
+            var newItemsCount = nextDisplayCount - currentDisplayCount;
+            
+            console.log('📥 Loading more:', newItemsCount, 'items (from', currentDisplayCount, 'to', nextDisplayCount, ')');
+            
+            // Thêm items mới
+            for (var i = currentDisplayCount; i < nextDisplayCount; i++) {
+                var item = allConverts[i];
+                var itemHtml = createConvertItemHTML(item);
+                grid.insertAdjacentHTML('beforeend', itemHtml);
+            }
+            
+            currentDisplayCount = nextDisplayCount;
+            
+            // Cập nhật số lượng còn lại
+            var remaining = allConverts.length - currentDisplayCount;
+            remainingCount.textContent = remaining;
+            
+            // Process download links cho items mới
+            processDownloadLinks();
+            
+            // Nếu đã load hết → Ẩn "Xem thêm", hiện "Thu gọn"
+            if (currentDisplayCount >= allConverts.length) {
+                loadMoreBtn.style.display = 'none';
+                collapseBtn.style.display = 'inline-flex';
+                console.log('✅ All items loaded');
+            }
+        }
+
+        function collapseConverts() {
+            var grid = document.getElementById('convertGrid');
+            var loadMoreBtn = document.getElementById('loadMoreBtn');
+            var collapseBtn = document.getElementById('collapseBtn');
+            var remainingCount = document.getElementById('remainingCount');
+            
+            // Xóa tất cả items (giữ lại 5 đầu tiên)
+            var items = grid.querySelectorAll('.convert-item');
+            for (var i = 5; i < items.length; i++) {
+                items[i].remove();
+            }
+            
+            currentDisplayCount = 5;
+            
+            // Cập nhật UI
+            var remaining = allConverts.length - currentDisplayCount;
+            remainingCount.textContent = remaining;
+            
+            loadMoreBtn.style.display = 'inline-flex';
+            collapseBtn.style.display = 'none';
+            
+            // Scroll về section convert history
+            document.querySelector('.convert-history').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            console.log('📦 Collapsed to 5 items');
+        }
+
+        function createConvertItemHTML(item) {
+            var html = '<div class="convert-item">' +
+                '<div class="convert-info">' +
+                    '<div class="convert-icon">' +
+                        '<i class="fas fa-file-alt"></i>' +
+                    '</div>' +
+                    '<div class="convert-details">' +
+                        '<div class="convert-filename" title="' + escapeHtml(item.fileName) + '">' +
+                            escapeHtml(item.fileName) +
+                        '</div>' +
+                        '<div class="convert-meta">' +
+                            '<span class="format-arrow">' +
+                                '<span class="source">' + item.sourceFormat.toUpperCase() + '</span>' +
+                                '<i class="fas fa-arrow-right" style="font-size: 10px;"></i>' +
+                                '<span class="target">' + item.targetFormat.toUpperCase() + '</span>' +
+                            '</span>' +
+                            '<span class="convert-time">' +
+                                '<i class="fas fa-clock"></i> ' +
+                                item.convertedAt +
+                            '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            
+            if (item.resultUrl) {
+                html += '<a href="' + item.resultUrl + '" ' +
+                    'class="btn-download-small download-link" ' +
+                    'data-original-url="' + item.resultUrl + '" ' +
+                    'data-filename="' + escapeHtml(item.fileName) + '" ' +
+                    'data-target-format="' + item.targetFormat + '" ' +
+                    'download ' +
+                    'target="_blank">' +
+                        '<i class="fas fa-download"></i> ' +
+                        'Tải xuống' +
+                    '</a>';
+            }
+            
+            html += '</div>';
+            
+            return html;
+        }
+
+        function escapeHtml(text) {
+            var map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
         // Modal functions
         function openEditModal() {
             document.getElementById('editModal').style.display = 'block';

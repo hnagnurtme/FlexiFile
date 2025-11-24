@@ -23,7 +23,7 @@ public class ConvertHistoryDAO {
      * Lấy lịch sử convert của user (5 file gần nhất)
      * Query từ subcollection: users/{userId}/fileJobs
      */
-    public List<ConvertHistory> getRecentConvertsByUserId(String userId, int limit) {
+    public List<ConvertHistory> getRecentConvertsByUserId(String userId) {
         List<ConvertHistory> history = new ArrayList<>();
         
         try {
@@ -37,7 +37,6 @@ public class ConvertHistoryDAO {
                     .collection(FILE_JOBS_SUBCOLLECTION)
                     .whereEqualTo("status", "DONE")
                     .orderBy("updatedAt", Query.Direction.DESCENDING)
-                    .limit(limit)
                     .get();
 
             QuerySnapshot querySnapshot = future.get();
@@ -76,7 +75,7 @@ public class ConvertHistoryDAO {
             System.out.println("✅ Fetched " + history.size() + " convert history for user: " + userId);
             
         } catch (InterruptedException | ExecutionException e) {
-            System.err.println("❌ Error fetching convert history: " + e.getMessage());
+            System.err.println("Error fetching convert history: " + e.getMessage());
             e.printStackTrace();
         }
         
@@ -87,7 +86,7 @@ public class ConvertHistoryDAO {
      * Lấy tất cả lịch sử convert của user
      */
     public List<ConvertHistory> getAllConvertsByUserId(String userId) {
-        return getRecentConvertsByUserId(userId, 1000); // Giới hạn 1000 records
+        return getRecentConvertsByUserId(userId); // Giới hạn 1000 records
     }
 
     /**
@@ -119,7 +118,7 @@ public class ConvertHistoryDAO {
             return count;
             
         } catch (InterruptedException | ExecutionException e) {
-            System.err.println("❌ Error counting converts: " + e.getMessage());
+            System.err.println("Error counting converts: " + e.getMessage());
             e.printStackTrace();
             return 0;
         }
