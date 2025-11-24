@@ -71,24 +71,49 @@ public class PdfConverter {
     }
 
     private static List<String> wrapText(String text, PDType0Font font, float fontSize, float maxWidth) throws IOException {
-        if (text == null) text = "";
-        text = text.replace("\t", "    ").replaceAll("[\\p{Cntrl}&&[^\r\n]]", "");
+        if (text == null || text.isEmpty()) {
+            return Collections.singletonList("");
+        }
+        
+        // Loại bỏ tất cả ký tự control (bao gồm \n, \r, \t)
+        text = text.replaceAll("[\\p{Cntrl}]", " ")  // Thay tất cả control chars bằng space
+                   .replaceAll("\\s+", " ")           // Gộp nhiều spaces thành 1
+                   .trim();                            // Xóa spaces đầu cuối
 
         List<String> lines = new ArrayList<>();
         String[] words = text.split(" ");
         StringBuilder line = new StringBuilder();
 
         for (String word : words) {
+            if (word.isEmpty()) continue;
+            
             String temp = line.length() == 0 ? word : line + " " + word;
-            float width = font.getStringWidth(temp) / 1000 * fontSize;
-            if (width > maxWidth) {
-                if (line.length() > 0) lines.add(line.toString());
-                line = new StringBuilder(word);
-            } else {
-                line = new StringBuilder(temp);
+            
+            try {
+                float width = font.getStringWidth(temp) / 1000 * fontSize;
+                
+                if (width > maxWidth && line.length() > 0) {
+                    lines.add(line.toString());
+                    line = new StringBuilder(word);
+                } else {
+                    line = new StringBuilder(temp);
+                }
+            } catch (Exception e) {
+                // Nếu có lỗi với ký tự nào đó, bỏ qua và tiếp tục
+                System.err.println("Error processing word: " + word);
+                continue;
             }
         }
-        if (line.length() > 0) lines.add(line.toString());
+
+        if (line.length() > 0) {
+            lines.add(line.toString());
+        }
+        
+        // Nếu không có dòng nào, trả về 1 dòng rỗng
+        if (lines.isEmpty()) {
+            lines.add("");
+        }
+
         return lines;
     }
 
@@ -112,8 +137,11 @@ public class PdfConverter {
                 contentStream.setFont(font, FONT_SIZE);
                 contentStream.setLeading(LEADING);
                 contentStream.newLineAtOffset(MARGIN, yPosition);
+                
                 for (String line : chunk.lines) {
-                    contentStream.showText(line);
+                    if (line != null && !line.isEmpty()) {
+                        contentStream.showText(line);
+                    }
                     contentStream.newLine();
                     yPosition -= LEADING;
                 }
@@ -163,11 +191,26 @@ public class PdfConverter {
             List<Object> content = new ArrayList<>();
 
             for (XWPFParagraph para : doc.getParagraphs()) {
+                String text = para.getText();
+                
+                if (text == null || text.trim().isEmpty()) {
+                    content.add(new TextChunk(Collections.singletonList(""), false, false));
+                    continue;
+                }
+                
                 boolean bold = para.getRuns().stream().anyMatch(r -> r.isBold());
                 boolean italic = para.getRuns().stream().anyMatch(r -> r.isItalic());
-                List<String> lines = wrapText(para.getText(), selectFont(fonts, bold, italic), FONT_SIZE, PAGE_WIDTH - 2 * MARGIN);
-                content.add(new TextChunk(lines, bold, italic));
-                content.add(new TextChunk(Collections.singletonList(""), false, false));
+                
+                try {
+                    List<String> lines = wrapText(text, selectFont(fonts, bold, italic), FONT_SIZE, PAGE_WIDTH - 2 * MARGIN);
+                    content.add(new TextChunk(lines, bold, italic));
+                    content.add(new TextChunk(Collections.singletonList(""), false, false));
+                } catch (Exception e) {
+                    System.err.println("Error processing paragraph: " + text);
+                    e.printStackTrace();
+                    // Bỏ qua paragraph lỗi và tiếp tục
+                    continue;
+                }
             }
 
             // Add images from DOCX
@@ -175,6 +218,9 @@ public class PdfConverter {
                 try (InputStream is = new ByteArrayInputStream(picData.getData())) {
                     BufferedImage img = ImageIO.read(is);
                     if (img != null) content.add(img);
+                } catch (Exception e) {
+                    System.err.println("Error processing image");
+                    e.printStackTrace();
                 }
             }
 
@@ -288,7 +334,6 @@ public class PdfConverter {
             default -> throw new UnsupportedOperationException("Unsupported output type: " + ext);
         }
     }
-
 
     private static String getFileExtension(String fileName) {
         int dot = fileName.lastIndexOf('.');

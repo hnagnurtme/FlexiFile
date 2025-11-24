@@ -43,6 +43,7 @@ public class LoginController extends HttpServlet {
             HttpSession session = request.getSession(true);
             
             session.setAttribute("isLoggedIn", true);
+            session.setAttribute("userId", user.getId());
             session.setAttribute("email", email);
             session.setAttribute("fullName", user.getFullName());
             session.setAttribute("userId", user.getId());   
@@ -52,7 +53,7 @@ public class LoginController extends HttpServlet {
             session.setAttribute("user", user);
             session.setMaxInactiveInterval(30 * 60); // 30 phút
 
-            response.sendRedirect("homeServlet");
+            response.sendRedirect("upload");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "An error occurred during login. Please try again.");
