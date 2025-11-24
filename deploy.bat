@@ -29,8 +29,8 @@ if %errorlevel% neq 0 (
 )
 
 echo [4/6] Copy file WAR moi...
-if exist target\FlexiFile-0.1.0-SNAPSHOT.war (
-    copy target\FlexiFile-0.1.0-SNAPSHOT.war d:\Tomcat\webapps\FlexiFile.war
+if exist target\FlexiFile.war (
+    copy target\FlexiFile.war d:\Tomcat\webapps\FlexiFile.war
     echo - Da copy file WAR thanh cong
 ) else (
     echo ERROR: File WAR khong ton tai!

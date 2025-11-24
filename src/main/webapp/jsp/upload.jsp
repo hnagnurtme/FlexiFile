@@ -20,7 +20,7 @@
                     String userId = (String) session.getAttribute("userId");
                     if (userId != null) {
                 %>
-                    <a href="<%= request.getContextPath() %>/account" class="btn-login">My Account</a>
+                    <a href="<%= request.getContextPath() %>/profile" class="btn-login">My Account</a>
                     <a href="<%= request.getContextPath() %>/logout" class="btn-signup">Logout</a>
                 <% } else { %>
                     <a href="<%= request.getContextPath() %>/login" class="btn-login">Login</a>
@@ -384,9 +384,26 @@
                                 
                                 const statusContainer = tracking.fileItem.querySelector('.file-status');
                                 if (job.resultUrl) {
+                                    // ✅ Thêm fl_attachment để force download
+                                    let downloadUrl = job.resultUrl;
+                                    
+                                    // Kiểm tra nếu là URL Cloudinary
+                                    if (downloadUrl.includes('cloudinary.com') && downloadUrl.includes('/upload/')) {
+                                        // Tìm vị trí của /upload/
+                                        const uploadIndex = downloadUrl.indexOf('/upload/');
+                                        
+                                        // Insert fl_attachment ngay sau /upload/
+                                        downloadUrl = downloadUrl.substring(0, uploadIndex + 8) + 
+                                                     'fl_attachment/' + 
+                                                     downloadUrl.substring(uploadIndex + 8);
+                                        
+                                        console.log('🔗 Original URL:', job.resultUrl);
+                                        console.log('📥 Download URL:', downloadUrl);
+                                    }
+                                    
                                     statusContainer.innerHTML = 
                                         '<span class="status-badge status-done">✓ Completed</span>' +
-                                        '<a href="' + job.resultUrl + '" class="btn-download" download target="_blank">' +
+                                        '<a href="' + downloadUrl + '" class="btn-download" download target="_blank">' +
                                             '⬇️ Download' +
                                         '</a>';
                                 }
