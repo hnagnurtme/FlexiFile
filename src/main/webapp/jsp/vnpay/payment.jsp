@@ -20,7 +20,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -32,19 +32,19 @@
 
         .header {
             text-align: center;
-            color: white;
+            color: #1976D2;
             margin-bottom: 30px;
         }
 
         .header h1 {
             font-size: 42px;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .header p {
             font-size: 18px;
-            opacity: 0.95;
+            color: #555;
         }
 
         .nav-bar {
@@ -56,6 +56,11 @@
             border-radius: 10px;
             margin-bottom: 30px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-bar strong {
+            color: #1976D2;
+            font-size: 18px;
         }
 
         .btn {
@@ -72,19 +77,19 @@
         }
 
         .btn-primary {
-            background: #667eea;
+            background: #1976D2;
             color: white;
         }
 
         .btn-outline {
             background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
+            color: #1976D2;
+            border: 2px solid #1976D2;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
         }
 
         .current-plan {
@@ -107,7 +112,7 @@
         .plan-stat-value {
             font-size: 24px;
             font-weight: bold;
-            color: #667eea;
+            color: #1976D2;
         }
 
         .plan-stat-label {
@@ -157,7 +162,7 @@
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #1976D2, #42A5F5);
             transform: scaleX(0);
             transition: transform 0.3s;
         }
@@ -168,7 +173,7 @@
 
         .plan-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 30px rgba(25, 118, 210, 0.2);
         }
 
         .plan-card.featured {
@@ -196,7 +201,7 @@
         .plan-icon {
             font-size: 48px;
             margin-bottom: 15px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #1976D2, #42A5F5);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -212,7 +217,7 @@
         .plan-price {
             font-size: 36px;
             font-weight: bold;
-            color: #667eea;
+            color: #1976D2;
             margin: 15px 0;
         }
 
@@ -243,7 +248,7 @@
         }
 
         .btn-upgrade {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #1976D2, #42A5F5);
             color: white;
             padding: 15px 30px;
             border: none;
@@ -257,7 +262,7 @@
 
         .btn-upgrade:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 20px rgba(25, 118, 210, 0.4);
         }
 
         .btn-upgrade:disabled {
@@ -311,7 +316,11 @@
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #1976D2;
+        }
+
+        .form-group small {
+            color: #1976D2;
         }
 
         @media (max-width: 768px) {
@@ -491,7 +500,7 @@
                         value="100000"
                         required
                         onchange="updateCustomDesc(this.value)">
-                    <small style="color: #666; font-size: 12px;">
+                    <small>
                         <i class="fas fa-info-circle"></i>
                         Bạn sẽ nhận được <span id="convertCount">200</span> lượt convert
                     </small>

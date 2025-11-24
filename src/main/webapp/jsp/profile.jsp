@@ -38,7 +38,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -60,7 +60,7 @@
         }
 
         .header h1 {
-            color: #667eea;
+            color: #1976D2;
             font-size: 28px;
         }
 
@@ -83,23 +83,23 @@
         }
 
         .btn-primary {
-            background: #667eea;
+            background: #1976D2;
             color: white;
         }
 
         .btn-primary:hover {
-            background: #5568d3;
+            background: #1565C0;
             transform: translateY(-2px);
         }
 
         .btn-outline {
             background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
+            color: #1976D2;
+            border: 2px solid #1976D2;
         }
 
         .btn-outline:hover {
-            background: #667eea;
+            background: #1976D2;
             color: white;
         }
 
@@ -125,7 +125,7 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -167,23 +167,23 @@
         }
 
         .plan-free {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: #E3F2FD;
+            color: #1976D2;
         }
 
         .plan-basic {
-            background: #fff3e0;
-            color: #f57c00;
+            background: #FFF3E0;
+            color: #F57C00;
         }
 
         .plan-premium {
-            background: #f3e5f5;
-            color: #7b1fa2;
+            background: #E1F5FE;
+            color: #0288D1;
         }
 
         .plan-pro {
-            background: #fff8e1;
-            color: #f57f17;
+            background: #FFF8E1;
+            color: #F57F17;
         }
 
         .stats {
@@ -194,7 +194,7 @@
         }
 
         .stat-item {
-            background: #f8f9fa;
+            background: #E3F2FD;
             padding: 15px;
             border-radius: 10px;
             text-align: center;
@@ -203,7 +203,7 @@
         .stat-value {
             font-size: 28px;
             font-weight: bold;
-            color: #667eea;
+            color: #1976D2;
         }
 
         .stat-label {
@@ -227,7 +227,7 @@
         }
 
         .section-title i {
-            color: #667eea;
+            color: #1976D2;
         }
 
         .info-grid {
@@ -239,7 +239,7 @@
             display: flex;
             justify-content: space-between;
             padding: 15px;
-            background: #f8f9fa;
+            background: #F5F5F5;
             border-radius: 10px;
         }
 
@@ -263,12 +263,12 @@
         }
 
         .payment-table th {
-            background: #f8f9fa;
+            background: #E3F2FD;
             padding: 12px;
             text-align: left;
             font-weight: 600;
-            color: #666;
-            border-bottom: 2px solid #e0e0e0;
+            color: #1976D2;
+            border-bottom: 2px solid #BBDEFB;
         }
 
         .payment-table td {
@@ -277,7 +277,7 @@
         }
 
         .payment-table tr:hover {
-            background: #f8f9fa;
+            background: #F5F5F5;
         }
 
         .status-badge {
@@ -288,13 +288,13 @@
         }
 
         .status-success {
-            background: #d4edda;
-            color: #155724;
+            background: #C8E6C9;
+            color: #2E7D32;
         }
 
         .status-failed {
-            background: #f8d7da;
-            color: #721c24;
+            background: #FFCDD2;
+            color: #C62828;
         }
 
         .empty-state {
@@ -307,10 +307,11 @@
             font-size: 48px;
             margin-bottom: 15px;
             opacity: 0.5;
+            color: #1976D2;
         }
 
         .edit-btn {
-            background: #667eea;
+            background: #1976D2;
             color: white;
             border: none;
             padding: 8px 16px;
@@ -323,7 +324,7 @@
         }
 
         .edit-btn:hover {
-            background: #5568d3;
+            background: #1565C0;
         }
 
         .modal {
@@ -355,7 +356,7 @@
         }
 
         .modal-header h3 {
-            color: #333;
+            color: #1976D2;
             font-size: 22px;
         }
 
@@ -395,7 +396,7 @@
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #1976D2;
         }
 
         .avatar-upload {
@@ -408,7 +409,7 @@
             height: 150px;
             border-radius: 50%;
             margin: 0 auto 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -437,20 +438,20 @@
         .file-input-label {
             display: inline-block;
             padding: 10px 20px;
-            background: #f0f0f0;
-            color: #333;
+            background: #E3F2FD;
+            color: #1976D2;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .file-input-label:hover {
-            background: #e0e0e0;
+            background: #BBDEFB;
         }
 
         .success-message {
-            background: #d4edda;
-            color: #155724;
+            background: #C8E6C9;
+            color: #2E7D32;
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
@@ -458,8 +459,8 @@
         }
 
         .error-message {
-            background: #f8d7da;
-            color: #721c24;
+            background: #FFCDD2;
+            color: #C62828;
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
@@ -490,13 +491,13 @@
             align-items: center;
             justify-content: space-between;
             padding: 16px;
-            background: #f8f9fa;
+            background: #F5F5F5;
             border-radius: 10px;
             transition: all 0.3s;
         }
 
         .convert-item:hover {
-            background: #e9ecef;
+            background: #E3F2FD;
             transform: translateX(5px);
         }
 
@@ -511,7 +512,7 @@
             width: 45px;
             height: 45px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -553,11 +554,11 @@
         }
 
         .format-arrow .source {
-            color: #667eea;
+            color: #1976D2;
         }
 
         .format-arrow .target {
-            color: #764ba2;
+            color: #0288D1;
         }
 
         .convert-time {
@@ -567,7 +568,7 @@
 
         .btn-download-small {
             padding: 8px 16px;
-            background: #667eea;
+            background: #1976D2;
             color: white;
             text-decoration: none;
             border-radius: 8px;
@@ -581,9 +582,9 @@
         }
 
         .btn-download-small:hover {
-            background: #5568d3;
+            background: #1565C0;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
         }
 
         .view-all-link {
@@ -592,7 +593,7 @@
         }
 
         .view-all-link a {
-            color: #667eea;
+            color: #1976D2;
             text-decoration: none;
             font-weight: 600;
             display: inline-flex;
@@ -602,7 +603,7 @@
         }
 
         .view-all-link a:hover {
-            color: #5568d3;
+            color: #1565C0;
             gap: 10px;
         }
 
@@ -672,7 +673,7 @@
                 <button class="edit-btn" onclick="openEditModal()">
                     <i class="fas fa-edit"></i> Chỉnh sửa thông tin
                 </button>
-                <button class="edit-btn" onclick="openPasswordModal()" style="margin-top: 10px; background: #764ba2;">
+                <button class="edit-btn" onclick="openPasswordModal()" style="margin-top: 10px; background: #0288D1;">
                     <i class="fas fa-key"></i> Đổi mật khẩu
                 </button>
             </div>
