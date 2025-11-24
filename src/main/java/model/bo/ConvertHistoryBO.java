@@ -12,7 +12,7 @@ public class ConvertHistoryBO {
      * Lấy 5 file convert gần nhất
      */
     public List<ConvertHistory> getRecentConverts(String userId) {
-        return convertHistoryDAO.getRecentConvertsByUserId(userId, 5);
+        return convertHistoryDAO.getRecentConvertsByUserId(userId);
     }
 
     /**

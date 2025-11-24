@@ -74,19 +74,22 @@
         const CLOUDINARY_UPLOAD_PRESET = 'flexifile_unsigned';
         const CLOUDINARY_UPLOAD_FOLDER = 'FlexFile/SourceFile';
 
-        // Supported formats mapping
+        // ✅ SUPPORTED_FORMATS - Cập nhật theo code thực tế
         const SUPPORTED_FORMATS = {
-            'pdf': ['docx', 'txt', 'log', 'csv', 'html', 'png', 'jpg', 'jpeg', 'gif', 'webp'],
+            // Document formats - có thể convert qua lại với nhau
+            'pdf': ['docx', 'txt', 'log', 'csv', 'html'],
             'docx': ['pdf', 'txt', 'log', 'csv', 'html'],
             'txt': ['pdf', 'docx', 'log', 'csv', 'html'],
             'log': ['pdf', 'docx', 'txt', 'csv', 'html'],
             'csv': ['pdf', 'docx', 'txt', 'log', 'html'],
             'html': ['pdf', 'docx', 'txt', 'log', 'csv'],
-            'png': ['jpg', 'jpeg', 'gif', 'webp', 'pdf'],
-            'jpg': ['png', 'jpeg', 'gif', 'webp', 'pdf'],
-            'jpeg': ['png', 'jpg', 'gif', 'webp', 'pdf'],
-            'gif': ['png', 'jpg', 'jpeg', 'webp', 'pdf'],
-            'webp': ['png', 'jpg', 'jpeg', 'gif', 'pdf']
+            
+            // Image formats - có thể convert qua lại với nhau
+            'png': ['jpg', 'jpeg', 'gif', 'webp'],
+            'jpg': ['png', 'jpeg', 'gif', 'webp'],
+            'jpeg': ['png', 'jpg', 'gif', 'webp'],
+            'gif': ['png', 'jpg', 'jpeg', 'webp'],
+            'webp': ['png', 'jpg', 'jpeg', 'gif']
         };
 
         let selectedFiles = [];
@@ -384,7 +387,6 @@
                                 
                                 const statusContainer = tracking.fileItem.querySelector('.file-status');
                                 if (job.resultUrl) {
-                                    // ✅ Thêm fl_attachment để force download
                                     let downloadUrl = job.resultUrl;
                                     
                                     // Kiểm tra nếu là URL Cloudinary
