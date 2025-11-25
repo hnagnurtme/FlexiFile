@@ -100,4 +100,59 @@ public class FileJobDAO {
         job.setUpdatedAt(doc.getDate("updatedAt"));
         return job;
     }
+
+    public List<String> getAllUserIds() {
+        List<String> userIds = new ArrayList<>();
+        try {
+            QuerySnapshot snapshot = db.collection(COLLECTION_NAME).get().get();
+            for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                userIds.add(doc.getId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userIds;
+    }
+
+    public List<FileJob> getAllFileJobs() {
+        List<FileJob> allJobs = new ArrayList<>();
+        try {
+            QuerySnapshot usersSnapshot = db.collection(COLLECTION_NAME).get().get();
+            for (DocumentSnapshot userDoc : usersSnapshot.getDocuments()) {
+                String userId = userDoc.getId();
+                QuerySnapshot jobsSnapshot = db.collection(COLLECTION_NAME)
+                        .document(userId)
+                        .collection("fileJobs")
+                        .get()
+                        .get();
+                for (DocumentSnapshot jobDoc : jobsSnapshot.getDocuments()) {
+                    FileJob job = mapDocumentToFileJob(jobDoc, userId);
+                    allJobs.add(job);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return allJobs;
+    }
+
+    public List<FileJob> getFileJobsByUser(String userId, String status) {
+        List<FileJob> result = new ArrayList<>();
+        try {
+            QuerySnapshot snapshot = db.collection(COLLECTION_NAME)
+                    .document(userId)
+                    .collection("fileJobs")
+                    .whereEqualTo("status", status)
+                    .get()
+                    .get();
+
+            for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                FileJob job = mapDocumentToFileJob(doc, userId);
+                result.add(job);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 }
