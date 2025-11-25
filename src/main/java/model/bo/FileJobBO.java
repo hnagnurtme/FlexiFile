@@ -64,4 +64,12 @@ public class FileJobBO {
     public boolean createFileJob(FileJob job) {
         return fileJobDAO.createFileJob(job);
     }
+
+    public List<String> getAllUserIds() {
+        return fileJobDAO.getAllUserIds();
+    }
+
+    public List<FileJob> getFileJobsByUser(String userId, String Status) {
+        return fileJobDAO.getFileJobsByUser(userId, Status);
+    }
 }

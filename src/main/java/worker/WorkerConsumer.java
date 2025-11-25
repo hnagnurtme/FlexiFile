@@ -10,8 +10,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
-import model.bean.FileJob;
 import config.RabbitMQConfig;
+import model.bean.FileJob;
 
 public class WorkerConsumer {
 
@@ -49,7 +49,7 @@ public class WorkerConsumer {
                     FileJob job = mapper.readValue(json, FileJob.class);
 
                     // Null-safe check to avoid NPE
-                    if (!"done".equals(job.getStatus())) {
+                    if (!"DONE".equals(job.getStatus()) && !"FAILED".equals(job.getStatus())) {
                         ConvertWorker worker = new ConvertWorker();
                         worker.process(job); // idempotent processing recommended
 

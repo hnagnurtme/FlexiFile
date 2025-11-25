@@ -183,7 +183,6 @@
                     </deployables>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
