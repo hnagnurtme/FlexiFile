@@ -17,7 +17,7 @@ import model.bean.PaymentHistory;
 import model.bean.User;
 import model.bo.ConvertHistoryBO;
 import model.bo.PaymentBO;
-import model.dao.AuthDAO;
+import model.bo.AuthBO;
 import util.CloudinaryUtil;
 
 @WebServlet("/profile")
@@ -30,14 +30,14 @@ public class ProfileServlet extends HttpServlet {
 
     private PaymentBO paymentBO;
     private ConvertHistoryBO convertHistoryBO;
-    private AuthDAO authDAO;
+    private AuthBO authBO;
 
     @Override
     public void init() throws ServletException {
         super.init();
         this.paymentBO = new PaymentBO();
         this.convertHistoryBO = new ConvertHistoryBO();
-        this.authDAO = new AuthDAO();
+        this.authBO = new AuthBO();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ProfileServlet extends HttpServlet {
 
         try {
             // Refresh user data từ database để đảm bảo thông tin mới nhất
-            User updatedUser = authDAO.getUserById(user.getId());
+            User updatedUser = authBO.getUserByIdBO(user.getId());
             if (updatedUser != null) {
                 session.setAttribute("user", updatedUser);
                 user = updatedUser;
@@ -144,11 +144,11 @@ public class ProfileServlet extends HttpServlet {
 
         try {
             // Cập nhật profile
-            boolean updated = authDAO.updateUserProfile(user.getId(), fullName, username, null);
+            boolean updated = authBO.updateUserProfileBO(user.getId(), fullName, username, null);
 
             if (updated) {
                 // Refresh user data trong session
-                User updatedUser = authDAO.getUserById(user.getId());
+                User updatedUser = authBO.getUserByIdBO(user.getId());
                 if (updatedUser != null) {
                     session.setAttribute("user", updatedUser);
                 }
@@ -214,7 +214,7 @@ public class ProfileServlet extends HttpServlet {
             System.out.println("Avatar uploaded to Cloudinary: " + cloudinaryUrl);
 
             // Cập nhật avatar URL trong database
-            boolean updated = authDAO.updateUserAvatar(user.getId(), cloudinaryUrl);
+            boolean updated = authBO.updateUserAvatarBO(user.getId(), cloudinaryUrl);
 
             if (updated) {
                 // Xóa avatar cũ từ Cloudinary nếu có
@@ -224,7 +224,7 @@ public class ProfileServlet extends HttpServlet {
                 }
 
                 // Refresh user data trong session
-                User updatedUser = authDAO.getUserById(user.getId());
+                User updatedUser = authBO.getUserByIdBO(user.getId());
                 if (updatedUser != null) {
                     session.setAttribute("user", updatedUser);
                 }
@@ -311,7 +311,7 @@ public class ProfileServlet extends HttpServlet {
             }
 
             // Change password
-            boolean changed = authDAO.changePassword(user.getId(), oldPassword, newPassword);
+            boolean changed = authBO.changePasswordBO(user.getId(), oldPassword, newPassword);
 
             if (changed) {
                 response.setContentType("application/json");

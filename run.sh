@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TOMCAT_DIR=~/Downloads/tomcat-10
-WAR_NAME=FlexiFile-0.1.0-SNAPSHOT.war
+WAR_NAME=FlexiFile.war
 CONTEXT_NAME=FlexiFile
 
 # Hàm dọn dẹp khi nhấn Ctrl+C

@@ -104,12 +104,92 @@ public class AuthBO {
         System.out.println("Password is empty");
         return false;
     }
-    
+
     if (newPassword.length() < 8) {
         System.out.println("Password must be at least 8 characters");
         return false;
     }
-    
+
     return authDAO.resetPassword(email, newPassword);
+    }
+
+    /**
+     * Lấy thông tin user theo ID
+     */
+    public User getUserByIdBO(String userId) {
+        if (userId == null || userId.trim().isEmpty()) {
+            System.out.println("User ID is empty");
+            return null;
+        }
+        return authDAO.getUserById(userId);
+    }
+
+    /**
+     * Cập nhật thông tin profile
+     */
+    public boolean updateUserProfileBO(String userId, String fullName, String username, String avatarUrl) {
+        // Validation
+        if (userId == null || userId.trim().isEmpty()) {
+            System.out.println("User ID is empty");
+            return false;
+        }
+
+        if (fullName != null && fullName.trim().isEmpty()) {
+            System.out.println("Full name cannot be empty");
+            return false;
+        }
+
+        if (username != null && username.trim().isEmpty()) {
+            System.out.println("Username cannot be empty");
+            return false;
+        }
+
+        return authDAO.updateUserProfile(userId, fullName, username, avatarUrl);
+    }
+
+    /**
+     * Cập nhật avatar
+     */
+    public boolean updateUserAvatarBO(String userId, String avatarUrl) {
+        // Validation
+        if (userId == null || userId.trim().isEmpty()) {
+            System.out.println("User ID is empty");
+            return false;
+        }
+
+        if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+            System.out.println("Avatar URL is empty");
+            return false;
+        }
+
+        return authDAO.updateUserAvatar(userId, avatarUrl);
+    }
+
+    /**
+     * Đổi mật khẩu
+     */
+    public boolean changePasswordBO(String userId, String oldPassword, String newPassword) {
+        // Validation
+        if (userId == null || userId.trim().isEmpty()) {
+            System.out.println("User ID is empty");
+            return false;
+        }
+
+        if (oldPassword == null || oldPassword.trim().isEmpty()) {
+            System.out.println("Old password is empty");
+            return false;
+        }
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            System.out.println("New password is empty");
+            return false;
+        }
+
+        if (newPassword.length() < 6) {
+            System.out.println("New password must be at least 6 characters");
+            return false;
+        }
+
+        return authDAO.changePassword(userId, oldPassword, newPassword);
     }
 }

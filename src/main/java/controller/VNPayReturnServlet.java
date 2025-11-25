@@ -14,20 +14,20 @@ import jakarta.servlet.http.HttpSession;
 import model.bean.PaymentHistory;
 import model.bean.User;
 import model.bo.PaymentBO;
-import model.dao.AuthDAO;
+import model.bo.AuthBO;
 import util.VNPayUtil;
 
 @WebServlet("/payment/vnpay_return")
 public class VNPayReturnServlet extends HttpServlet {
 
     private PaymentBO paymentBO;
-    private AuthDAO authDAO;
+    private AuthBO authBO;
 
     @Override
     public void init() throws ServletException {
         super.init();
         this.paymentBO = new PaymentBO();
-        this.authDAO = new AuthDAO();
+        this.authBO = new AuthBO();
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -117,7 +117,7 @@ public class VNPayReturnServlet extends HttpServlet {
                         System.out.println("Payment processed successfully: " + payment.getId());
 
                         // Cập nhật user trong session với thông tin mới nhất từ database
-                        User updatedUser = authDAO.getUserById(user.getId());
+                        User updatedUser = authBO.getUserByIdBO(user.getId());
                         if (updatedUser != null) {
                             session.setAttribute("user", updatedUser);
                             System.out.println("Session user updated with new plan: " + updatedUser.getPlanType());
