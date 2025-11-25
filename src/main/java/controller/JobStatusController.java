@@ -11,13 +11,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.bean.FileJob;
-import model.dao.FileJobDAO;
+import model.bo.FileJobBO;
 
 @WebServlet("/api/job-status")
 public class JobStatusController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static final FileJobDAO fileJobDAO = new FileJobDAO();
+    private static final FileJobBO fileJobBO = new FileJobBO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -46,7 +46,7 @@ public class JobStatusController extends HttpServlet {
         }
 
         try {
-            FileJob job = fileJobDAO.getFileJob(userId, jobId);
+            FileJob job = fileJobBO.getFileJob(userId, jobId);
             
             if (job == null) {
                 response.getWriter().write("{\"error\":\"Job not found\"}");

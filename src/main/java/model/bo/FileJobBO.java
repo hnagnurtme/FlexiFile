@@ -72,4 +72,8 @@ public class FileJobBO {
     public List<FileJob> getFileJobsByUser(String userId, String Status) {
         return fileJobDAO.getFileJobsByUser(userId, Status);
     }
+
+    public FileJob getFileJob(String userId, String jobId) {
+        return fileJobDAO.getFileJob(userId, jobId);
+    }
 }
